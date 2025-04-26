@@ -8,6 +8,8 @@ use App\Models\Order;
 use App\Models\Product;
 use Carbon\Carbon;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
@@ -40,17 +42,21 @@ class OrderResource extends Resource
                             ->disabled()
                             ->dehydrated()
                             ->required(),
+                        DatePicker::make('order_date')
+                            ->label('Tanggal Pesanan')
+                            ->default(now())
+                            ->required(),
                         Forms\Components\TextInput::make('customer_name')
                             ->required()
                             ->maxLength(255),
-                        Forms\Components\TextInput::make('customer_phone')
-                            ->tel()
-                            ->maxLength(255),
-                        Forms\Components\Textarea::make('notes')
-                            ->maxLength(65535)
-                            ->columnSpanFull(),
+                        // Forms\Components\TextInput::make('customer_phone')
+                        //     ->tel()
+                        //     ->maxLength(255),
+                        // Forms\Components\Textarea::make('notes')
+                        //     ->maxLength(65535)
+                        //     ->columnSpanFull(),
                     ])
-                    ->columns(2),
+                    ->columns(3),
 
                 Forms\Components\Section::make('Item Pesanan')
                     ->schema([
@@ -81,20 +87,12 @@ class OrderResource extends Resource
                                         $price = $get('price');
                                         $set('subtotal', $price * $state);
                                     }),
-                                Forms\Components\TextInput::make('price')
-                                    ->numeric()
-                                    ->prefix('Rp')
-                                    ->disabled()
-                                    ->dehydrated()
+                                Forms\Components\Hidden::make('price')
                                     ->required(),
-                                Forms\Components\TextInput::make('subtotal')
-                                    ->numeric()
-                                    ->prefix('Rp')
-                                    ->disabled()
-                                    ->dehydrated()
+                                Forms\Components\Hidden::make('subtotal')
                                     ->required(),
                             ])
-                            ->columns(4)
+                            ->columns(2)
                             ->required()
                             ->minItems(1)
                             ->createItemButtonLabel('Tambah Item')
@@ -110,8 +108,32 @@ class OrderResource extends Resource
                             }),
                     ]),
 
-                Forms\Components\Section::make('Pembayaran')
+                    Forms\Components\Section::make('Pembayaran')
                     ->schema([
+                        Forms\Components\Placeholder::make('order_summary')
+                            ->label('Ringkasan Pesanan')
+                            ->content(function (Get $get) {
+                                $items = $get('orderItems');
+                                if (!$items || empty($items)) {
+                                    return 'Belum ada item yang ditambahkan';
+                                }
+                                
+                                $summary = "";
+                                foreach ($items as $index => $item) {
+                                    if (isset($item['product_id']) && isset($item['quantity']) && isset($item['subtotal'])) {
+                                        $product = Product::find($item['product_id']);
+                                        if ($product) {
+                                            // Buat badge untuk setiap item dengan jeda baris
+                                            $summary .= '<div class="mb-2">' . 
+                                            '<span class="inline-flex items-center justify-center min-h-6 px-2 py-0.5 text-sm font-medium tracking-tight rounded-xl whitespace-normal bg-primary-50 text-primary-600 dark:bg-primary-500/20 dark:text-primary-400">' 
+                                            . $product->name . ' ' . $item['quantity'] . 'x' . ' Rp' . number_format($item['subtotal'], 0, ',', '.') 
+                                            . '</span></div>';
+                                        }
+                                    }
+                                }
+                                return new \Illuminate\Support\HtmlString($summary);
+                            })
+                            ->columnSpanFull(),
                         Forms\Components\TextInput::make('total_amount')
                             ->numeric()
                             ->prefix('Rp')
@@ -120,11 +142,12 @@ class OrderResource extends Resource
                             ->required(),
                         Forms\Components\Select::make('payment_method')
                             ->options([
-                                'transfer' => 'Transfer',
+                                'cash' => 'Cash',
                                 'tempo' => 'Tempo',
                             ])
-                            ->default('transfer')
+                            ->default('cash')
                             ->required()
+                            ->disabled()
                             ->reactive()
                             ->afterStateUpdated(function ($state, Set $set) {
                                 if ($state === 'tempo') {
@@ -144,12 +167,11 @@ class OrderResource extends Resource
                             ->options([
                                 'paid' => 'Lunas',
                                 'pending' => 'Belum Lunas',
-                                'overdue' => 'Jatuh Tempo',
+                                // 'overdue' => 'Jatuh Tempo',
                             ])
-                            ->default('pending')
-                            ->required(),
+                            ->default('pending'),
                     ])
-                    ->columns(2),
+                    ->columns(3),
             ]);
     }
 
@@ -157,6 +179,8 @@ class OrderResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('order_date')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('order_number')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('customer_name')
@@ -164,24 +188,24 @@ class OrderResource extends Resource
                 Tables\Columns\TextColumn::make('total_amount')
                     ->money('IDR')
                     ->sortable(),
-                Tables\Columns\BadgeColumn::make('payment_method')
-                    ->colors([
-                        'primary' => 'transfer',
-                        'warning' => 'tempo',
-                    ]),
+                // Tables\Columns\BadgeColumn::make('payment_method')
+                //     ->colors([
+                //         'primary' => 'cash',
+                //         'warning' => 'tempo',
+                //     ]),
                 Tables\Columns\BadgeColumn::make('payment_status')
                     ->colors([
                         'success' => 'paid',
                         'warning' => 'pending',
                         'danger' => 'overdue',
                     ]),
-                Tables\Columns\TextColumn::make('payment_due_date')
-                    ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                // Tables\Columns\TextColumn::make('payment_due_date')
+                //     ->date()
+                //     ->sortable(),
+                // Tables\Columns\TextColumn::make('created_at')
+                //     ->dateTime()
+                //     ->sortable()
+                //     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('payment_status')
@@ -192,7 +216,7 @@ class OrderResource extends Resource
                     ]),
                 Tables\Filters\SelectFilter::make('payment_method')
                     ->options([
-                        'transfer' => 'Transfer',
+                        'cash' => 'Cash',
                         'tempo' => 'Tempo',
                     ]),
                 Tables\Filters\Filter::make('created_at')
@@ -213,10 +237,24 @@ class OrderResource extends Resource
                     }),
             ])
             ->actions([
+                Tables\Actions\Action::make('print')
+                    ->label('Print')
+                    ->icon('heroicon-o-printer')
+                    ->action(function (Order $record) {
+                        // Generate print view
+                        return response()->streamDownload(function () use ($record) {
+                            echo view('orders.print-receipt', [
+                                'order' => $record,
+                                'orderItems' => $record->orderItems,
+                            ])->render();
+                        }, $record->order_number . '.txt');
+                    })
+                    ->tooltip('Print struk pesanan'),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
-            ])
+                
+])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
