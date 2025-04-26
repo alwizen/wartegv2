@@ -7,6 +7,7 @@ use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\Category;
 use App\Models\Product;
 use Filament\Forms;
+use Filament\Forms\Components\Card;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -19,58 +20,70 @@ class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-bookmark';
+
+    protected static ?string $navigationGroup = 'Master Data';
+
+    protected static ?string $navigationLabel = 'Menu';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
 
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
-                Forms\Components\Select::make('category_id')
-                    ->relationship('category', 'name')
-                    ->required()
-                    ->live()
-                    ->afterStateUpdated(function ($state, Forms\Set $set) {
-                        if ($state) {
-                            $category = Category::find($state);
-                            if ($category) {
-                                // Generate product code based on category prefix
-                                $prefix = $category->code_prefix;
-                                $latestProduct = Product::where('product_code', 'like', $prefix . '%')
-                                    ->orderBy('product_code', 'desc')
-                                    ->first();
+        ->schema([
+            Forms\Components\Select::make('category_id')
+                ->relationship('category', 'name')
+                ->label('Kategori')
+                ->required()
+                ->live()
+                ->afterStateUpdated(function ($state, Forms\Set $set) {
+                    if ($state) {
+                        $category = Category::find($state);
+                        if ($category) {
+                            // Generate product code based on category prefix
+                            $prefix = $category->code_prefix;
+                            $latestProduct = Product::where('product_code', 'like', $prefix . '%')
+                                ->orderBy('product_code', 'desc')
+                                ->first();
 
-                                $nextNumber = '01';
+                            $nextNumber = '01';
 
-                                if ($latestProduct) {
-                                    $lastCode = $latestProduct->product_code;
-                                    $lastNumber = (int) Str::substr($lastCode, 2, 2);
-                                    $nextNumber = str_pad($lastNumber + 1, 2, '0', STR_PAD_LEFT);
-                                }
-
-                                $productCode = $prefix . $nextNumber;
-                                $set('product_code', $productCode);
+                            if ($latestProduct) {
+                                $lastCode = $latestProduct->product_code;
+                                $lastNumber = (int) Str::substr($lastCode, 2, 2);
+                                $nextNumber = str_pad($lastNumber + 1, 2, '0', STR_PAD_LEFT);
                             }
-                        }
-                    }),
-                Forms\Components\TextInput::make('product_code')
-                    ->required()
-                    ->unique(ignoreRecord: true)
-                    ->disabled()
-                    ->dehydrated()
-                    ->maxLength(4),
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\Textarea::make('description')
-                    ->maxLength(65535)
-                    ->columnSpanFull(),
-                Forms\Components\TextInput::make('price')
-                    ->required()
-                    ->numeric()
-                    ->prefix('Rp'),
-            ]);
-    }
 
+                            $productCode = $prefix . $nextNumber;
+                            $set('product_code', $productCode);
+                        }
+                    }
+                }),
+            Forms\Components\TextInput::make('product_code')
+                ->required()
+                ->label('Kode Produk')
+                ->unique(ignoreRecord: true)
+                ->disabled()
+                ->dehydrated()
+                ->maxLength(4),
+            Forms\Components\TextInput::make('name')
+                ->label('Nama Menu')
+                ->required()
+                ->maxLength(255),
+            // Forms\Components\Textarea::make('description')
+            //     ->maxLength(65535)
+            //     ->columnSpanFull(),
+            Forms\Components\TextInput::make('price')
+                ->required()
+                ->label('Harga')
+                ->numeric()
+                ->prefix('Rp'),
+        ]);
+}
     public static function table(Table $table): Table
     {
         return $table

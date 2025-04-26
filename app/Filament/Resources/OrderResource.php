@@ -15,6 +15,8 @@ use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\Summarizers\Count;
+use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -25,7 +27,17 @@ class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-banknotes';
+
+    protected static ?string $navigationLabel = 'Pesanan';
+
+    protected static ?string $navigationGroup = 'Transaksi';
+
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
 
     public static function form(Form $form): Form
     {
@@ -108,7 +120,7 @@ class OrderResource extends Resource
                             }),
                     ]),
 
-                    Forms\Components\Section::make('Pembayaran')
+                Forms\Components\Section::make('Pembayaran')
                     ->schema([
                         Forms\Components\Placeholder::make('order_summary')
                             ->label('Ringkasan Pesanan')
@@ -117,17 +129,17 @@ class OrderResource extends Resource
                                 if (!$items || empty($items)) {
                                     return 'Belum ada item yang ditambahkan';
                                 }
-                                
+
                                 $summary = "";
                                 foreach ($items as $index => $item) {
                                     if (isset($item['product_id']) && isset($item['quantity']) && isset($item['subtotal'])) {
                                         $product = Product::find($item['product_id']);
                                         if ($product) {
                                             // Buat badge untuk setiap item dengan jeda baris
-                                            $summary .= '<div class="mb-2">' . 
-                                            '<span class="inline-flex items-center justify-center min-h-6 px-2 py-0.5 text-sm font-medium tracking-tight rounded-xl whitespace-normal bg-primary-50 text-primary-600 dark:bg-primary-500/20 dark:text-primary-400">' 
-                                            . $product->name . ' ' . $item['quantity'] . 'x' . ' Rp' . number_format($item['subtotal'], 0, ',', '.') 
-                                            . '</span></div>';
+                                            $summary .= '<div class="mb-2">' .
+                                                '<span class="inline-flex items-center justify-center min-h-6 px-2 py-0.5 text-sm font-medium tracking-tight rounded-xl whitespace-normal bg-primary-50 text-primary-600 dark:bg-primary-500/20 dark:text-primary-400">'
+                                                . $product->name . ' ' . $item['quantity'] . 'x' . ' Rp' . number_format($item['subtotal'], 0, ',', '.')
+                                                . '</span></div>';
                                         }
                                     }
                                 }
@@ -185,9 +197,6 @@ class OrderResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('customer_name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('total_amount')
-                    ->money('IDR')
-                    ->sortable(),
                 // Tables\Columns\BadgeColumn::make('payment_method')
                 //     ->colors([
                 //         'primary' => 'cash',
@@ -199,6 +208,10 @@ class OrderResource extends Resource
                         'warning' => 'pending',
                         'danger' => 'overdue',
                     ]),
+                Tables\Columns\TextColumn::make('total_amount')
+                    ->money('IDR')
+                    ->sortable()
+                    ->summarize(Sum::make('total_amount', 'Total'),),
                 // Tables\Columns\TextColumn::make('payment_due_date')
                 //     ->date()
                 //     ->sortable(),
@@ -212,13 +225,9 @@ class OrderResource extends Resource
                     ->options([
                         'paid' => 'Lunas',
                         'pending' => 'Belum Lunas',
-                        'overdue' => 'Jatuh Tempo',
+                        // 'overdue' => 'Jatuh Tempo',
                     ]),
-                Tables\Filters\SelectFilter::make('payment_method')
-                    ->options([
-                        'cash' => 'Cash',
-                        'tempo' => 'Tempo',
-                    ]),
+               
                 Tables\Filters\Filter::make('created_at')
                     ->form([
                         Forms\Components\DatePicker::make('created_from'),
@@ -253,8 +262,8 @@ class OrderResource extends Resource
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
-                
-])
+
+            ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
