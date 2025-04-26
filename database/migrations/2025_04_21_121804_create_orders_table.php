@@ -13,11 +13,12 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
+            $table->date('order_date');
             $table->string('order_number')->unique();
             $table->string('customer_name');
             $table->string('customer_phone')->nullable();
             $table->decimal('total_amount', 10, 2);
-            $table->enum('payment_method', ['transfer', 'tempo']);
+            $table->enum('payment_method', ['cash', 'tempo']);
             $table->enum('payment_status', ['paid', 'pending', 'overdue'])->default('pending');
             $table->date('payment_due_date')->nullable();
             $table->text('notes')->nullable();
