@@ -61,12 +61,6 @@ class OrderResource extends Resource
                         Forms\Components\TextInput::make('customer_name')
                             ->required()
                             ->maxLength(255),
-                        // Forms\Components\TextInput::make('customer_phone')
-                        //     ->tel()
-                        //     ->maxLength(255),
-                        // Forms\Components\Textarea::make('notes')
-                        //     ->maxLength(65535)
-                        //     ->columnSpanFull(),
                     ])
                     ->columns(3),
 
@@ -135,7 +129,6 @@ class OrderResource extends Resource
                                     if (isset($item['product_id']) && isset($item['quantity']) && isset($item['subtotal'])) {
                                         $product = Product::find($item['product_id']);
                                         if ($product) {
-                                            // Buat badge untuk setiap item dengan jeda baris
                                             $summary .= '<div class="mb-2">' .
                                                 '<span class="inline-flex items-center justify-center min-h-6 px-2 py-0.5 text-sm font-medium tracking-tight rounded-xl whitespace-normal bg-primary-50 text-primary-600 dark:bg-primary-500/20 dark:text-primary-400">'
                                                 . $product->name . ' ' . $item['quantity'] . 'x' . ' Rp' . number_format($item['subtotal'], 0, ',', '.')
@@ -152,24 +145,13 @@ class OrderResource extends Resource
                             ->disabled()
                             ->dehydrated()
                             ->required(),
-                        Forms\Components\Select::make('payment_method')
-                            ->options([
-                                'cash' => 'Cash',
-                                'tempo' => 'Tempo',
-                            ])
+                        Forms\Components\TextInput::make('payment_method')
                             ->default('cash')
-                            ->required()
                             ->disabled()
-                            ->reactive()
-                            ->afterStateUpdated(function ($state, Set $set) {
-                                if ($state === 'tempo') {
-                                    // Set due date to 1 week from now
-                                    $set('payment_due_date', Carbon::now()->addWeek()->format('Y-m-d'));
-                                    $set('payment_status', 'pending');
-                                } else {
-                                    $set('payment_due_date', null);
-                                }
-                            }),
+                            ->dehydrated(true)
+                            ->required()
+                            ->maxLength(255),
+
                         Forms\Components\DatePicker::make('payment_due_date')
                             ->visible(fn(Get $get) => $get('payment_method') === 'tempo')
                             ->minDate(fn() => now())
@@ -191,17 +173,14 @@ class OrderResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('#')
+                    ->rowIndex(),
                 Tables\Columns\TextColumn::make('order_date')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('order_number')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('customer_name')
                     ->searchable(),
-                // Tables\Columns\BadgeColumn::make('payment_method')
-                //     ->colors([
-                //         'primary' => 'cash',
-                //         'warning' => 'tempo',
-                //     ]),
                 Tables\Columns\BadgeColumn::make('payment_status')
                     ->colors([
                         'success' => 'paid',
@@ -212,22 +191,14 @@ class OrderResource extends Resource
                     ->money('IDR')
                     ->sortable()
                     ->summarize(Sum::make('total_amount', 'Total'),),
-                // Tables\Columns\TextColumn::make('payment_due_date')
-                //     ->date()
-                //     ->sortable(),
-                // Tables\Columns\TextColumn::make('created_at')
-                //     ->dateTime()
-                //     ->sortable()
-                //     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('payment_status')
                     ->options([
                         'paid' => 'Lunas',
                         'pending' => 'Belum Lunas',
-                        // 'overdue' => 'Jatuh Tempo',
                     ]),
-               
+
                 Tables\Filters\Filter::make('created_at')
                     ->form([
                         Forms\Components\DatePicker::make('created_from'),
