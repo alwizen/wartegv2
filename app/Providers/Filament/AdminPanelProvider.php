@@ -24,7 +24,10 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
-            ->brandName('warteg.v2')
+            ->brandName('Warung Nasi Nani - Bayu')
+            // ->brandLogo(asset('img/lg.svg'))
+            // ->darkModeBrandLogo(asset('img/dr.svg'))
+            // ->brandLogoHeight('3rem')
             ->id('admin')
             ->path('admin')
             ->login()
@@ -32,8 +35,7 @@ class AdminPanelProvider extends PanelProvider
             ->collapsedSidebarWidth('9rem')
             ->spa()
             ->colors([
-                'primary' => Color::Blue,
-                'purple' => Color::Purple
+                'primary' => Color::Purple,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
@@ -43,6 +45,8 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 \App\Filament\Widgets\QuickActions::class,
+                \App\Filament\Widgets\OrderStatsOverview::class,
+                \App\Filament\Widgets\OrderTransactionsChart::class,
             ])
             ->middleware([
                 EncryptCookies::class,
