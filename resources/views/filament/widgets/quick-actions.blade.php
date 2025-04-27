@@ -1,9 +1,11 @@
 <x-filament-widgets::widget>
     <x-filament::section>
         <div class="flex flex-wrap gap-4">
-            {{ $this->createOrder() }}  <br>
-            {{ $this->creatProduct() }} <br>
-            {{ $this->viewOrder() }}
+            @foreach ($this->getActions() as $action)
+                {{ $action->button()->extraAttributes([
+                   'class' => 'w-full sm:w-48 text-lg px-8 py-6 rounded-xl shadow-md',
+                ]) }}
+            @endforeach
         </div>
     </x-filament::section>
-</x-filament-widgets::widget>dgets::widget>
+</x-filament-widgets::widget>
