@@ -129,12 +129,16 @@ class OrderResource extends Resource
                                         $price = $get('price');
                                         $set('subtotal', $price * $state);
                                     }),
-                                Forms\Components\Hidden::make('price')
+                                Forms\Components\TextInput::make('price')                            
+                                    ->numeric()
+                                    ->disabled()
+                                    ->prefix('Rp')
+                                    ->dehydrated()
                                     ->required(),
                                 Forms\Components\Hidden::make('subtotal')
                                     ->required(),
                             ])
-                            ->columns(2)
+                            ->columns(3)
                             ->required()
                             ->minItems(1)
                             ->createItemButtonLabel('Tambah Item')
@@ -231,7 +235,9 @@ class OrderResource extends Resource
                             ->label('Total')
                             ->formatStateUsing(fn(string $state): string => 'Rp ' . number_format($state, 0, ',', '.')),
                     ),
-            ])
+                    
+            ])->defaultSort('created_at', 'desc')
+            
             ->filters([
                 Tables\Filters\SelectFilter::make('payment_status')
                     ->options([
@@ -324,3 +330,4 @@ class OrderResource extends Resource
         ];
     }
 }
+

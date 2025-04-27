@@ -1,5 +1,4 @@
 <x-filament-widgets::widget>
-    <x-filament::section>
         <div class="flex flex-wrap gap-4">
             @foreach ($this->getActions() as $action)
                 {{ $action->button()->extraAttributes([
@@ -7,5 +6,4 @@
                 ]) }}
             @endforeach
         </div>
-    </x-filament::section>
 </x-filament-widgets::widget>

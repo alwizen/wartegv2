@@ -27,7 +27,7 @@ class QuickActions extends Widget
                 ->url(route('filament.admin.resources.orders.index'))
                 ->icon('heroicon-o-clipboard-document-list')
                 ->size('lg')
-                ->color('purple'),
+                ->color('danger'),
 
             Action::make('createProduct') 
                 ->label('Tambah Menu Baru')
