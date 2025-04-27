@@ -20,6 +20,7 @@ class Order extends Model
 
     protected $casts = [
         'payment_due_date' => 'date',
+        'order_date' => 'date',
     ];
 
     public function orderItems()
