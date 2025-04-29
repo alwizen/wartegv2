@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->datetimes('order_date');
+            $table->dateTime('order_date');
             $table->string('order_number')->unique();
             $table->string('customer_name');
             $table->string('customer_phone')->nullable();
