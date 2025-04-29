@@ -24,16 +24,13 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
-            ->brandName('Warung Nasi Nani - Bayu')
-            // ->brandLogo(asset('img/lg.svg'))
-            // ->darkModeBrandLogo(asset('img/dr.svg'))
-            // ->brandLogoHeight('3rem')
+            ->brandLogo(asset('img/light.svg'))
+            ->darkModeBrandLogo(asset('img/dark.svg'))
+            ->brandLogoHeight('3rem')
             ->id('admin')
             ->path('admin')
             ->login()
-            // ->topNavigation()
             ->sidebarCollapsibleOnDesktop()
-            // ->collapsedSidebarWidth('9rem')
             ->spa()
             ->colors([
                 'primary' => Color::Purple,
