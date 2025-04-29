@@ -1,7 +1,9 @@
-{{-- Struk untuk printer termal --}}
 ================================
+            NANI -  BAYU
+        Jl . TPI Tegal Kota
+         0928928398982938
 NOTA PESANAN #{{ $order->order_number }}
-{{ date('d/m/Y', strtotime($order->order_date)) }}
+Tanggal Pesanan #{{ date('d/m/Y', strtotime($order->order_date)) }}
 ================================
 Pelanggan: {{ $order->customer_name }}
 --------------------------------
@@ -19,5 +21,5 @@ Status: {{ $order->payment_status == 'paid' ? 'LUNAS' : 'BELUM LUNAS' }}
 Jatuh tempo: {{ date('d/m/Y', strtotime($order->payment_due_date)) }}
 @endif
 ================================
-    Terima kasih atas pesanan Anda
+ Terima kasih atas pesanan Anda
 ================================

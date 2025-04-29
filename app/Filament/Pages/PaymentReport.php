@@ -52,19 +52,7 @@ class PaymentReport extends Page implements Tables\Contracts\HasTable
                     ->label('Pelanggan')
                     ->searchable()
                     ->sortable(),
-                // Tables\Columns\TextColumn::make('payment_method')
-                //     ->label('Metode Pembayaran')
-                //     ->badge()
-                //     ->formatStateUsing(fn (string $state): string => match ($state) {
-                //         'cash' => 'Tunai',
-                //         'tempo' => 'Tempo',
-                //         default => $state,
-                //     })
-                //     ->color(fn (string $state): string => match ($state) {
-                //         'cash' => 'success',
-                //         'tempo' => 'warning',
-                //         default => 'gray',
-                //     }),
+     
                 Tables\Columns\TextColumn::make('payment_status')
                     ->label('Status Pembayaran')
                     ->badge()
@@ -84,7 +72,10 @@ class PaymentReport extends Page implements Tables\Contracts\HasTable
                     ->label('Total Pembayaran')
                     ->money('IDR')
                     ->sortable(),
-            ])->defaultSort('created_at', 'desc')
+            ])
+            // ->defaultSort('order_date', 'desc')
+            ->defaultPaginationPageOption(50)
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('payment_status')
                     ->label('Status Pembayaran')

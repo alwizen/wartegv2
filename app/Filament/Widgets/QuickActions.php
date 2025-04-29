@@ -15,6 +15,13 @@ class QuickActions extends Widget
     public function getActions(): array
     {
         return [
+            Action::make('pos-orders')
+                ->label('Buat Pesanan Baru (Tab Mode)')
+                ->url(route('filament.admin.pages.pos-orders'))
+                ->icon('heroicon-o-device-phone-mobile')
+                ->size('lg')
+                ->color('info'),
+
             Action::make('createOrder')
                 ->label('Buat Pesanan Baru')
                 ->url(route('filament.admin.resources.orders.create'))
@@ -39,9 +46,16 @@ class QuickActions extends Widget
             Action::make('payment-report')
                 ->label('Laporan Pembayaran')
                 ->url(route('filament.admin.pages.payment-report'))
-                ->icon('heroicon-o-chart-bar')
+                ->icon('heroicon-o-credit-card')
                 ->size('lg')
                 ->color('warning'),
+
+                Action::make('sales-report')
+                ->label('Laporan Penjualan')
+                ->url(route('filament.admin.pages.sales-report'))
+                ->icon('heroicon-o-chart-bar')
+                ->size('lg')
+                ->color('gray'),
 
         ];
     }
