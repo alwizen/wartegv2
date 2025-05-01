@@ -100,7 +100,7 @@ class OrderResource extends Resource
                     ])
                     ->columns(3),
 
-                    Forms\Components\Section::make('Item Pesanan')
+                Forms\Components\Section::make('Item Pesanan')
                     ->schema([
                         Forms\Components\Repeater::make('orderItems')
                             ->relationship()
@@ -118,7 +118,7 @@ class OrderResource extends Resource
                                                 $set('price', $product->price);
                                                 $quantity = $get('quantity') ?: 1;
                                                 $set('subtotal', $product->price * $quantity);
-                                                
+
                                                 // Recalculate total amount
                                                 $parentState = $get('../../');
                                                 $total = 0;
@@ -144,7 +144,7 @@ class OrderResource extends Resource
                                         $quantity = $state ?: 1;
                                         $subtotal = $price * $quantity;
                                         $set('subtotal', $subtotal);
-                                        
+
                                         // Recalculate total amount
                                         $parentState = $get('../../');
                                         $total = 0;
@@ -157,7 +157,7 @@ class OrderResource extends Resource
                                         }
                                         $set('../../total_amount', $total);
                                     }),
-                                Forms\Components\TextInput::make('price')                            
+                                Forms\Components\TextInput::make('price')
                                     ->numeric()
                                     ->disabled()
                                     ->prefix('Rp')
@@ -181,7 +181,7 @@ class OrderResource extends Resource
                                 }
                                 $set('total_amount', $total);
                             }),
-                
+
                         // Add a hidden field to initialize the total when the form loads
                         Forms\Components\Hidden::make('initialize_total')
                             ->afterStateHydrated(function (Get $get, Set $set) {
@@ -201,42 +201,42 @@ class OrderResource extends Resource
                 Forms\Components\Section::make('Pembayaran')
                     ->schema([
                         Forms\Components\Placeholder::make('order_summary')
-    ->label('Ringkasan Pesanan')
-    ->content(function (Get $get) {
-        $items = $get('orderItems');
-        if (!$items || empty($items)) {
-            return 'Belum ada item yang ditambahkan';
-        }
+                            ->label('Ringkasan Pesanan')
+                            ->content(function (Get $get) {
+                                $items = $get('orderItems');
+                                if (!$items || empty($items)) {
+                                    return 'Belum ada item yang ditambahkan';
+                                }
 
-        $summary = "";
-        $totalItems = 0; // Initialize total items counter
-        $totalAmount = 0; // Initialize total amount
-        
-        foreach ($items as $index => $item) {
-            if (isset($item['product_id']) && isset($item['quantity']) && isset($item['price']) && isset($item['subtotal'])) {
-                $product = Product::find($item['product_id']);
-                if ($product) {
-                    $totalItems += $item['quantity']; // Add to total items count
-                    $totalAmount += $item['subtotal']; // Add to total amount
-                    $summary .= '<div class="mb-2">' .
-                        '<span class="inline-flex items-center justify-center min-h-6 px-2 py-0.5 text-sm font-medium tracking-tight rounded-xl whitespace-normal bg-primary-50 text-primary-600 dark:bg-primary-500/20 dark:text-primary-400">'
-                        . $product->name . ' ' . $item['quantity'] . ' x ' . ' Rp' . number_format($item['price'], 0, ',', '.') . ' @ ' . ' Rp' . number_format($item['subtotal'], 0, ',', '.')
-                        . '</span></div>';
-                }
-            }
-        }
-        
-        // Add summary footer with both total items and total amount
-        if ($totalItems > 0) {
-            $summary .= '<div class="mt-3 flex justify-between items-center">' .
-                '<span class="text-sm font-medium text-gray-500">Total: ' . $totalItems . ' item</span>' .
-                '<span class="text-sm font-medium text-primary-600">Rp ' . number_format($totalAmount, 0, ',', '.') . '</span>' .
-                '</div>';
-        }
-        
-        return new \Illuminate\Support\HtmlString($summary);
-    })
-    ->columnSpanFull(),
+                                $summary = "";
+                                $totalItems = 0; // Initialize total items counter
+                                $totalAmount = 0; // Initialize total amount
+
+                                foreach ($items as $index => $item) {
+                                    if (isset($item['product_id']) && isset($item['quantity']) && isset($item['price']) && isset($item['subtotal'])) {
+                                        $product = Product::find($item['product_id']);
+                                        if ($product) {
+                                            $totalItems += $item['quantity']; // Add to total items count
+                                            $totalAmount += $item['subtotal']; // Add to total amount
+                                            $summary .= '<div class="mb-2">' .
+                                                '<span class="inline-flex items-center justify-center min-h-6 px-2 py-0.5 text-sm font-medium tracking-tight rounded-xl whitespace-normal bg-primary-50 text-primary-600 dark:bg-primary-500/20 dark:text-primary-400">'
+                                                . $product->name . ' ' . $item['quantity'] . ' x ' . ' Rp' . number_format($item['price'], 0, ',', '.') . ' @ ' . ' Rp' . number_format($item['subtotal'], 0, ',', '.')
+                                                . '</span></div>';
+                                        }
+                                    }
+                                }
+
+                                // Add summary footer with both total items and total amount
+                                if ($totalItems > 0) {
+                                    $summary .= '<div class="mt-3 flex justify-between items-center">' .
+                                        '<span class="text-sm font-medium text-gray-500">Total: ' . $totalItems . ' item</span>' .
+                                        '<span class="text-sm font-medium text-primary-600">Rp ' . number_format($totalAmount, 0, ',', '.') . '</span>' .
+                                        '</div>';
+                                }
+
+                                return new \Illuminate\Support\HtmlString($summary);
+                            })
+                            ->columnSpanFull(),
                         Forms\Components\TextInput::make('total_amount')
                             ->numeric()
                             ->prefix('Rp')
@@ -293,11 +293,11 @@ class OrderResource extends Resource
                             ->label('Total')
                             ->formatStateUsing(fn(string $state): string => 'Rp ' . number_format($state, 0, ',', '.')),
                     ),
-                    
+
             ])
             ->defaultPaginationPageOption(50)
             ->defaultSort('created_at', 'desc')
-            
+
             ->filters([
                 Tables\Filters\SelectFilter::make('payment_status')
                     ->options([
@@ -327,17 +327,20 @@ class OrderResource extends Resource
                     ->label('Print')
                     ->icon('heroicon-o-printer')
                     ->action(function (Order $record) {
-                        // Generate print view
+                        // Generate print view sesuai format printer thermal
                         return response()->streamDownload(function () use ($record) {
                             echo view('orders.print-receipt', [
                                 'order' => $record,
                                 'orderItems' => $record->orderItems,
                             ])->render();
-                        }, $record->order_number . '.txt');
+                        }, $record->order_number . '.txt', [
+                            'Content-Type' => 'text/plain; charset=utf-8',
+                            'Content-Disposition' => 'inline; filename=' . $record->order_number . '.txt',
+                        ]);
                     })
                     ->tooltip('Print struk pesanan'),
 
-                    Tables\Actions\Action::make('view')
+                Tables\Actions\Action::make('view')
                     ->label('Lihat')
                     ->icon('heroicon-o-eye')
                     ->modalHeading('Detail Pesanan')
@@ -370,7 +373,7 @@ class OrderResource extends Resource
                                                     // ->state('Subtotal')
                                                     ->weight('bold'),
                                             ]),
-                                            
+
                                         // Items list without repeating labels
                                         RepeatableEntry::make('orderItems')
                                             ->schema([
@@ -408,4 +411,3 @@ class OrderResource extends Resource
         ];
     }
 }
-
