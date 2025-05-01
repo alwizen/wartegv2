@@ -23,7 +23,7 @@ class PaymentReport extends Page implements Tables\Contracts\HasTable
 {
     use Tables\Concerns\InteractsWithTable;
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-chart-bar';
+    protected static ?string $navigationIcon = 'heroicon-o-document-currency-dollar';
 
     protected static ?string $navigationGroup = 'Laporan';
 

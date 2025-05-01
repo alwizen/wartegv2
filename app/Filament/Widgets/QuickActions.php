@@ -37,9 +37,9 @@ class QuickActions extends Widget
                 ->color('danger'),
 
             Action::make('createProduct') 
-                ->label('Tambah Menu Baru')
-                ->url(route('filament.admin.resources.products.create'))
-                ->icon('heroicon-o-bookmark')
+                ->label('Daftar Menu')
+                ->url(route('filament.admin.resources.products.index'))
+                ->icon('heroicon-o-list-bullet')
                 ->size('lg')
                 ->color('primary'),
 

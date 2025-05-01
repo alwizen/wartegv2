@@ -24,6 +24,7 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
+            ->favicon(asset('img/fav.svg'))
             ->brandLogo(asset('img/l.svg'))
             ->darkModeBrandLogo(asset('img/d.svg'))
             ->brandLogoHeight('3rem')
