@@ -1,4 +1,3 @@
-{{-- Template untuk printer thermal 80mm (±40 karakter per baris) --}}
 @php
     $width = 45;
     // Helper function untuk perataan dan pemotongan string
@@ -24,10 +23,11 @@
         return str_repeat(' ', floor($padding)) . $text . str_repeat(' ', ceil($padding));
     }
 @endphp
-{{ str_repeat('=', $width) }}
-{{ centerText('NANI - BAYU', $width) }}
-{{ centerText('Jl. TPI Tegal Kota', $width) }}
-{{ centerText('', $width) }}
+{{ str_repeat('+', $width) }}
+{{ centerText('* Warung Nasi NANI / BAYU *', $width) }}
+{{ centerText('TPI Pelabuhan Tegal Kota', $width) }}
+{{ centerText('0815-6951-180', $width) }}
+
 NOTA PESANAN #{{ $order->order_number }}
 Tanggal Pesanan: {{ date('d/m/Y', strtotime($order->order_date)) }}
 {{ str_repeat('=', $width) }}
@@ -51,6 +51,6 @@ Status: {{ $order->payment_status == 'paid' ? 'LUNAS' : 'BELUM LUNAS' }}
 @if($order->payment_method == 'tempo')
 Jatuh tempo: {{ date('d/m/Y', strtotime($order->payment_due_date)) }}
 @endif
-{{ str_repeat('=', $width) }}
+{{ str_repeat('+', $width) }}
 {{ centerText('Terima kasih atas pesanan Anda', $width) }}
-{{ str_repeat('=', $width) }}
+{{ str_repeat('+', $width) }}

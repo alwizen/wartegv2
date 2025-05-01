@@ -1,0 +1,96 @@
+{{-- Template untuk printer thermal 80mm dengan font diperbesar --}}
+@php
+$width = 23;
+
+// Helper function untuk perataan dan pemotongan string
+function padTextRight($text, $length) {
+    if (mb_strlen($text) > $length) {
+        return mb_substr($text, 0, $length);
+    }
+    return $text . str_repeat(' ', $length - mb_strlen($text));
+}
+
+function padTextLeft($text, $length) {
+    if (mb_strlen($text) > $length) {
+        return mb_substr($text, 0, $length);
+    }
+    return str_repeat(' ', $length - mb_strlen($text)) . $text;
+}
+
+function centerText($text, $width) {
+    if (mb_strlen($text) > $width) {
+        return mb_substr($text, 0, $width);
+    }
+    $padding = ($width - mb_strlen($text)) / 2;
+    return str_repeat(' ', floor($padding)) . $text . str_repeat(' ', ceil($padding));
+}
+
+// Kode ESC/POS untuk memperbesar font
+$ESC = chr(27);
+$GS = chr(29);
+$normalSize = $ESC . "!" . chr(0); // Font ukuran normal
+$doubleHeight = $ESC . "!" . chr(16); // Font tinggi double
+$doubleWidth = $ESC . "!" . chr(32); // Font lebar double
+$doubleAll = $ESC . "!" . chr(48); // Font double (tinggi dan lebar)
+$boldOn = $ESC . "E" . chr(1); // Bold ON
+$boldOff = $ESC . "E" . chr(0); // Bold OFF
+$centerAlign = $ESC . "a" . chr(1); // Center alignment
+$leftAlign = $ESC . "a" . chr(0); // Left alignment
+$rightAlign = $ESC . "a" . chr(2); // Right alignment
+@endphp
+
+{!! $centerAlign !!}
+{!! $doubleAll !!}
+{{ centerText('NANI - BAYU', $width) }}
+{!! $normalSize !!}
+{{ centerText('Jl. TPI Tegal Kota', $width) }}
+{{ centerText('', $width) }}
+
+{!! $leftAlign !!}
+{!! $doubleHeight !!}
+NOTA PESANAN #{{ $order->order_number }}
+{!! $normalSize !!}
+Tanggal Pesanan: {{ date('d/m/Y', strtotime($order->order_date)) }}
+{!! $doubleWidth !!}
+{{ str_repeat('=', $width) }}
+
+{!! $normalSize !!}
+Pelanggan: {{ $order->customer_name }}
+{{ str_repeat('-', $width) }}
+
+{!! $boldOn !!}
+ITEM                QTY     TOTAL
+{!! $boldOff !!}
+{{ str_repeat('-', $width) }}
+
+@foreach ($orderItems as $item)
+@php
+    $name = padTextRight($item->product->name, 22);
+    $qty = padTextLeft($item->quantity . 'x', 7);
+    $price = 'Rp' . number_format($item->subtotal, 0, ',', '.');
+    $price = padTextLeft($price, 13);
+@endphp
+{{ $name }} {{ $qty }} {{ $price }}
+@endforeach
+
+{{ str_repeat('-', $width) }}
+
+{!! $boldOn !!}
+{{ padTextRight('TOTAL:', 30) }} {{ padTextLeft('Rp' . number_format($order->total_amount, 0, ',', '.'), 13) }}
+{!! $boldOff !!}
+{{ str_repeat('-', $width) }}
+
+Status: {{ $order->payment_status == 'paid' ? 'LUNAS' : 'BELUM LUNAS' }}
+@if($order->payment_method == 'tempo')
+Jatuh tempo: {{ date('d/m/Y', strtotime($order->payment_due_date)) }}
+@endif
+
+{!! $doubleWidth !!}
+{{ str_repeat('=', $width) }}
+{!! $centerAlign !!}
+{!! $normalSize !!}
+{{ centerText('Terima kasih atas pesanan Anda', $width) }}
+{!! $doubleWidth !!}
+{{ str_repeat('=', $width) }}
+
+{!! $ESC !!}d{!! chr(5) !!}

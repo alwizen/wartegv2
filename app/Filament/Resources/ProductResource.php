@@ -4,17 +4,16 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductResource\Pages;
 use App\Filament\Resources\ProductResource\RelationManagers;
-use App\Models\Category;
 use App\Models\Product;
+use App\Models\Category;
 use Filament\Forms;
-use Filament\Forms\Components\Card;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Str;
 
 class ProductResource extends Resource
 {
@@ -26,16 +25,11 @@ class ProductResource extends Resource
 
     protected static ?string $navigationLabel = 'Menu';
 
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::count();
-    }
-
     public static function form(Form $form): Form
     {
         return $form
-        ->schema([
-            Forms\Components\Select::make('category_id')
+            ->schema([
+                Forms\Components\Select::make('category_id')
                 ->relationship('category', 'name')
                 ->label('Kategori')
                 ->required()
@@ -92,10 +86,10 @@ class ProductResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('category.name')
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('price')
-                    ->money('IDR')
+                    ->money('IDR'),
+                Tables\Columns\TextColumn::make('category.name')
+                    ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -107,9 +101,7 @@ class ProductResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('category_id')
-                    ->relationship('category', 'name')
-                    ->label('Kategori'),
+                //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -125,9 +117,7 @@ class ProductResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListProducts::route('/'),
-            'create' => Pages\CreateProduct::route('/create'),
-            'edit' => Pages\EditProduct::route('/{record}/edit'),
+            'index' => Pages\ManageProducts::route('/'),
         ];
     }
 }
